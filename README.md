@@ -1,13 +1,17 @@
-# Phase 4 Full-Stack Application Project Template
-
-## Learning Goals
-
-- Discuss the basic directory structure of a full-stack Flask/React application.
-- Carry out the first steps in creating your Phase 4 project.
-
----
+# Rise & Grind App
 
 ## Introduction
+Welcome to the Rise & Grind App! A new way to create goals for your fitness journey and to hold yourself accountable in completing those goals. Rise & Grind
+will provide you provide you with resourceful workouts and tools to track your progression over time until your goals have been achieved. The app will allow you
+to go at your own pace so you'll never feel pressure or rush to complete your goals! The app considers your fitness level and from there will offer a selection of workouts that
+you can do within that level. What are you waiting for? Go ahead and get started on your path to becoming the best version of YOU!
+
+## Core Features
+- Signups
+- Selections
+-
+-
+
 
 Fork and clone this lesson for a template for your full-stack application. Take
 a look at the directory structure before we begin (NOTE: node_modules will be
