@@ -7,8 +7,6 @@ from sqlalchemy import MetaData
 
 from config import db
 
-metadata = MetaData(naming_convention=convention)
-db = SQLAlchemy(metadata=metadata)
 
 # Models go here!
 class User(db.Model, SerializerMixin):
@@ -21,32 +19,31 @@ class User(db.Model, SerializerMixin):
     height = db.Column(db.String, nullable=False)
     weight = db.Column(db.Float, nullable=False)
     fitness_level = db.Column(db.String, nullable=False)
-    goals = db.Column(db.Integer, nullable=False)
+
 
 # Add relationship
-workouts = db.relationship('Workout', back_populates='user', cascade="all")
+    goals = db.relationship('Goal', back_populates='user', cascade="all")
+    workouts = db.relationship('Workout', back_populates='user', cascade="all")
 
 # Add serialization rules
-serialize_rules = ('-workouts.user',)
+    serialize_rules = ('-workouts.user', '-goals.user')
 
 # Add validation
-@validates('username')
-def validates_username(self, key, value):
-    if (value == None) or (isinstance(value, str) or (8 < len(value) < 20)):
-        raise ValueError("Enter a username! "
-        "Username must be between 8 and 20 characters")
-    return value
-
-@validates('password')
-def validates_password(self, key, value):
-    if (value == None) or (isinstance(value, str) or len(value) < 8):
-        raise ValueError("Enter a password!"
-        "Password must be more than 8 characters")
-    else:
+    @validates('username')
+    def validates_username(self, key, value):
+        if (value == None) or (not isinstance(value, str)) or (not (8 <= len(value) <= 20)):
+            raise ValueError("Enter a username! Username must be between 8 and 20 characters")
         return value
 
-def __repr__(self):
-    return f'<User {self.id}: {self.username}, {self.password_hash}, {self.email}, {self.height}, {self.weight}, {self.fitness_level}, {self.goals}>'
+    @validates('password')
+    def validates_password(self, key, value):
+        if (value == None) or (not isinstance(value, str)) or (len(value) < 9):
+            raise ValueError("Enter a password! Password must be more than 8 characters")
+        else:
+            return value
+
+    def __repr__(self):
+        return f'<User {self.id}: {self.username}, {self.password_hash}, {self.email}, {self.height}, {self.weight}, {self.fitness_level}>'
 
 
 class Goal(db.Model, SerializerMixin):
@@ -55,13 +52,18 @@ class Goal(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String, nullable=False)
     target_date = db.Column(db.String, nullable=False)
-    completed = db.Column(db.Boolean, nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    completed = db.Column(db.String, nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+# Add Goal relationship
+
+    user = db.relationship('User', back_populates='goals')
 
 # Add serialization rules
 
-def __repr__(self):
-    pass
+    def __repr__(self):
+        return f'<Goal {self.id}: {self.description}, {self.target_date}, {self.completed}>'
 
 class Workout(db.Model, SerializerMixin):
     __tablename__ = "workouts"
@@ -79,10 +81,10 @@ class Workout(db.Model, SerializerMixin):
     exercise = db.relationship("Exercise", back_populates="workouts")
 
 # Add serialization rules
-serialize_rules = ('-user.workouts', '-exercise.workouts')
+    serialize_rules = ('-user.workouts', '-exercise.workouts')
 
-def __repr__(self):
-    return f'<Workout {self.id}: {self.name}, {self.duration}, {self.date}>'
+    def __repr__(self):
+        return f'<Workout {self.id}: {self.name}, {self.duration}, {self.date}>'
 
 
 class Exercise(db.Model, SerializerMixin):
@@ -99,11 +101,9 @@ class Exercise(db.Model, SerializerMixin):
     workouts = db.relationship("Workout", back_populates="exercise", cascade="all")
 
 # Add serialization rules
-serialize_rules = ('-workouts.exercise',)
+    serialize_rules = ('-workouts.exercise',)
 
-def __repr__(self):
-    pass
-
-
+    def __repr__(self):
+        return f'<Exercise {self.id}: {self.name}, {self.description}, {self.body_part}, {self.category}, {self.demo_pic_url}>'
 
 
